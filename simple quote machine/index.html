@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Quote Machine</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="quote-box">
+            <div id="text-box">
+                <span id="text">
+                    " It is not what you do for your children, but what you have taught them to do for themselves, that
+                    will
+                    make them successful human beings."
+                </span>
+                <span id="author">-Ann Landers</span>
+            </div>
+            <div id="buttons-box">
+                <div id="new-quote-button">
+                    <button id="new-quote">New Quote</button>
+                </div>
+                <div id="redirect-buttons">
+                    <div id="twitter">
+                        <a href="https://twitter.com/intent/tweet?hashtags=quotes&related=freecodecamp&text="
+                            It%20is%20not%20what%20you%20do%20for%20your%20children%2C%20but%20what%20you%20have%20taught%20them%20to%20do%20for%20themselves%2C%20that%20will%20make%20them%20successful%20human%20beings."%20Ann%20Landers"
+                            id="tweet-quote">twitter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>  $("#new-quote").on('click', function () {
+            $("#text").text("Love is blind but trustworthy");
+            $("#author").text("-Akanksh");
+        });
+    </script>
+</body>
+
+</html>
