@@ -1,2 +1,2 @@
-# FCC-mini-projects-simple mini projects using react
+# FCC-simple mini projects using react
 
