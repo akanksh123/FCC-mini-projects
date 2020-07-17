@@ -1,0 +1,38 @@
+
+body {
+    background: grey;
+  }
+  h1{
+    background:#bbb;
+    text-align:center;
+  }
+  #preview {
+    display: inline-block;
+  }
+  .editor_box {
+    width: 500px;
+    margin: 18px auto;
+    background:#fff;
+    
+  }
+  #editor{
+      width: 99%;
+      min-height: 200px;
+      outline: none;
+      font-size: 12px;
+    
+  }
+  .preview_box {
+    background:#fff;
+    width: 700px;
+    margin: 20px auto;
+    min-height: 200px;
+    overflow-wrap: break-word;
+  
+  }
+    #preview {
+      margin-top: -10px;
+      width: 100%;
+    }
+  
+  
