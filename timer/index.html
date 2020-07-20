@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Timer</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://kit.fontawesome.com/debd527fd8.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <div id="app"></div>
+    <script type="text/babel">
+
+class Controller extends React.Component {
+  render() {
+    return (
+      <div className="controller">
+        <button id="start_stop" onClick={this.props.onStartStop}>
+          {this.props.isStart ? 'Stop' : 'Start'}
+        </button>
+        <button id="reset" onClick={this.props.onReset}>Reset</button>
+      </div>
+    )
+  }
+}
+
+class Settings extends React.Component {
+  render() {
+    const btnClassName = this.props.isStart ? 'disable' : '';
+
+    return (
+      <div className="settings">
+        <div className="settings-section">
+          <label id="break-label">Break Length</label>
+          <div>
+            <button className={btnClassName} id="break-decrement" onClick={this.props.onDecreaseBreakLength}><i className="fa fa-arrow-left "/></button>
+            <span id="break-length">{this.props.breakLength}</span>
+            <button className={btnClassName} id="break-increment" onClick={this.props.onIncreaseBreakLength}><i className="fa fa-arrow-right "/></button>
+          </div>
+        </div>
+        <div className="settings-section">
+          <label id="session-label">Session Length</label>
+          <div>
+            <button className={btnClassName} id="session-decrement" onClick={this.props.onDecreaseSessionLength}><i className="fa fa-arrow-left"/></button>
+            <span id="session-length">{this.props.sessionLength}</span>
+            <button className={btnClassName} id="session-increment" onClick={this.props.onIncreaseSessionLength}><i className="fa fa-arrow-right "/></button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+
+const formatTime = (timeLeft) => {
+  let minute = Math.floor(timeLeft / 60);
+  if (minute < 10) minute = '0' + minute;
+
+  let second = timeLeft - 60 * minute;
+  if (second < 10) second = '0' + second;
+
+  return `${minute}:${second}`;
+}
+
+class Timer extends React.Component {
+  render() {
+    return (
+      <div className="timer">
+        <div className="timer-content">
+          <label id="timer-label">{this.props.timeLabel}</label>
+          <span id="time-left">{formatTime(this.props.timeLeft)}</span>
+        </div>
+      </div>
+    )
+  }
+}
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.audioBeep = React.createRef();
+
+    this.state = {
+      breakLength: 5,
+      sessionLength: 25,
+      timeLabel: 'Session',
+      timeLeft: 25 * 60,
+      isStart: false,
+      timerInterval: null
+    }
+
+    this.onIncreaseBreakLength = this.onIncreaseBreakLength.bind(this);
+    this.onDecreaseBreakLength = this.onDecreaseBreakLength.bind(this);
+    this.onIncreaseSessionLength = this.onIncreaseSessionLength.bind(this);
+    this.onDecreaseSessionLength = this.onDecreaseSessionLength.bind(this);
+    this.onReset = this.onReset.bind(this);
+    this.onStartStop = this.onStartStop.bind(this);
+    this.decreaseTimer = this.decreaseTimer.bind(this);
+    this.phaseControl = this.phaseControl.bind(this);
+  }
+
+  onIncreaseBreakLength() {
+    if (this.state.breakLength < 60 && !this.state.isStart) {
+      this.setState({
+        breakLength: this.state.breakLength + 1
+      });
+    }
+  }
+
+  onDecreaseBreakLength() {
+    if (this.state.breakLength > 1 && !this.state.isStart) {
+      this.setState({
+        breakLength: this.state.breakLength - 1
+      });
+    }
+  }
+
+  onIncreaseSessionLength() {
+    if (this.state.sessionLength < 60 && !this.state.isStart) {
+      this.setState({
+        sessionLength: this.state.sessionLength + 1,
+        timeLeft: (this.state.sessionLength + 1) * 60
+      });
+    }
+  }
+
+  onDecreaseSessionLength() {
+    if (this.state.sessionLength > 1 && !this.state.isStart) {
+      this.setState({
+        sessionLength: this.state.sessionLength - 1,
+        timeLeft: (this.state.sessionLength - 1) * 60
+      });
+    }
+  }
+
+  onReset() {
+    this.setState({
+      breakLength: 5,
+      sessionLength: 25,
+      timeLabel: 'Session',
+      timeLeft: 25 * 60,
+      isStart: false,
+      timerInterval: null
+    });
+
+    this.audioBeep.current.pause();
+    this.audioBeep.current.currentTime = 0;
+    this.state.timerInterval && clearInterval(this.state.timerInterval);
+  }
+
+  onStartStop() {
+    if (!this.state.isStart) {
+      this.setState({
+        isStart: !this.state.isStart,
+        timerInterval: setInterval(() => {
+          this.decreaseTimer();
+          this.phaseControl();
+        }, 1000)
+      })
+    } else {
+      this.audioBeep.current.pause();
+      this.audioBeep.current.currentTime = 0;
+      this.state.timerInterval && clearInterval(this.state.timerInterval);
+
+      this.setState({
+        isStart: !this.state.isStart,
+        timerInterval: null
+      });
+    }
+  }
+
+  decreaseTimer() {
+    this.setState({
+      timeLeft: this.state.timeLeft - 1
+    });
+  }
+
+  phaseControl() {
+    if (this.state.timeLeft === 0) {
+      this.audioBeep.current.play();
+    } else if (this.state.timeLeft === -1) {
+      if (this.state.timeLabel === 'Session') {
+        this.setState({
+          timeLabel: 'Break',
+          timeLeft: this.state.breakLength * 60
+        });
+      } else {
+        this.setState({
+          timeLabel: 'Session',
+          timeLeft: this.state.sessionLength * 60
+        });
+      }
+    }
+  }
+
+  render() {
+    return (
+      <div className="pomodoro-clock">
+
+        <Settings
+          breakLength={this.state.breakLength}
+          sessionLength={this.state.sessionLength}
+          isStart={this.state.isStart}
+          onDecreaseBreakLength={this.onDecreaseBreakLength}
+          onDecreaseSessionLength={this.onDecreaseSessionLength}
+          onIncreaseBreakLength={this.onIncreaseBreakLength}
+          onIncreaseSessionLength={this.onIncreaseSessionLength}
+        />
+
+        <Timer
+          timeLabel={this.state.timeLabel}
+          timeLeft={this.state.timeLeft}
+        />
+
+        <Controller
+          onReset={this.onReset}
+          onStartStop={this.onStartStop}
+          isStart={this.state.isStart}
+        />
+
+        <audio id="beep" preload="auto" src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav" ref={this.audioBeep}></audio>
+      </div>
+    );
+  }
+}
+
+
+ReactDOM.render(<App/>,document.getElementById("app"));
+    </script>
+</body>
+
+</html>
